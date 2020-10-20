@@ -95,7 +95,7 @@ static void dlt_context_map_read(const char *json_filename)
             DLT_LOG_CXX(dltQnxSlogger2Context, DLT_LOG_INFO,
                     "Could not emplace slog2ctxt map key: ", name);
         } else {
-            dlt_register_context(ctxt, ctxtID, description);
+            DLT_REGISTER_CONTEXT_LL_TS(ctxt, ctxtID, description, DLT_LOG_VERBOSE, DLT_TRACE_STATUS_OFF);
         }
 
         ret = json_decoder_pop(dec);
@@ -212,8 +212,8 @@ static void *slogger2_thread(void *v_conf)
 
     DLT_LOG(dltQnxSystem, DLT_LOG_DEBUG,
             DLT_STRING("dlt-qnx-slogger2-adapter, in thread."));
-    DLT_REGISTER_CONTEXT(dltQnxSlogger2Context, conf->qnxslogger2.contextId,
-                         "SLOGGER2 Adapter");
+    DLT_REGISTER_CONTEXT_LL_TS(dltQnxSlogger2Context, conf->qnxslogger2.contextId,
+                         "SLOGGER2 Adapter",DLT_LOG_VERBOSE,DLT_TRACE_STATUS_OFF);
 
     dlt_context_map_read(CONFIGURATION_FILES_DIR "/dlt-slog2ctxt.json");
 

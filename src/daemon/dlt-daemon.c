@@ -2431,6 +2431,7 @@ int dlt_daemon_process_user_message_register_context(DltDaemon *daemon,
     DltDaemonContext *context = NULL;
     DltServiceGetLogInfoRequest *req = NULL;
     char *origin;
+    bool enforce_ll_ts = false;
 
     DltMessage msg;
 
@@ -2500,6 +2501,10 @@ int dlt_daemon_process_user_message_register_context(DltDaemon *daemon,
 
         return 0;
     }
+    /* enforce to use log_level defined in daemon */
+    if ((daemon_local->flags.enforceContextLLAndTS && userctxt.log_level > daemon_local->flags.contextLogLevel) ||
+        (daemon_local->flags.enforceContextLLAndTS && userctxt.trace_status > daemon_local->flags.contextTraceStatus))
+        enforce_ll_ts = true;
 
     /* Set log level */
     if (userctxt.log_level == DLT_USER_LOG_LEVEL_NOT_SET)
@@ -2601,7 +2606,7 @@ int dlt_daemon_process_user_message_register_context(DltDaemon *daemon,
     }
 
     if (context->user_handle >= DLT_FD_MINIMUM) {
-        if ((userctxt.log_level == DLT_LOG_DEFAULT) || (userctxt.trace_status == DLT_TRACE_STATUS_DEFAULT)) {
+        if ((userctxt.log_level == DLT_LOG_DEFAULT) || (userctxt.trace_status == DLT_TRACE_STATUS_DEFAULT) || enforce_ll_ts) {
             /* This call also replaces the default values with the values defined for default */
             if (dlt_daemon_user_send_log_level(daemon, context, verbose) == -1) {
                 dlt_vlog(LOG_WARNING, "Can't send current log level as response to %s for (%.4s;%.4s)\n",
